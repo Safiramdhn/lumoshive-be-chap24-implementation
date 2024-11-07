@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"fmt"
 	"golang-beginner-chap24/collections"
 	"golang-beginner-chap24/services"
 	"golang-beginner-chap24/utils"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type BookHandler struct {
@@ -80,4 +83,52 @@ func (h *BookHandler) CreateBookHandler(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		utils.RespondWithJSON(w, http.StatusBadRequest, "Invalid request method", nil)
 	}
+}
+
+func (h *BookHandler) GetBooksHandler(w http.ResponseWriter, r *http.Request) {
+	// Get all books from the database
+	books, err := h.BookService.GetAllBooks()
+	if err != nil {
+		utils.RespondWithJSON(w, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	for i, book := range books {
+		// Convert price to a formatted string with thousands separator
+		formattedPrice := fmt.Sprintf("Rp%s", formatPrice(book.Price))
+		books[i].FormattedPrice = formattedPrice
+	}
+	err = templates.ExecuteTemplate(w, "book-list-view", map[string]interface{}{
+		"Books": books,
+	})
+	if err != nil {
+		utils.RespondWithJSON(w, http.StatusInternalServerError, err.Error(), nil)
+	}
+}
+
+func (h *BookHandler) EditBookFormHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the book ID from the URL parameters using chi's Param function
+	bookId := chi.URLParam(r, "id")
+
+	// Retrieve the book and categories from the service
+	book, categories, err := h.BookService.GetBookByID(bookId)
+	if err != nil {
+		utils.RespondWithJSON(w, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+	fmt.Printf("Book: %+v, Categories: %+v", book, categories)
+
+	// Ensure the book has a valid Category field and pass the data to the template
+	err = templates.ExecuteTemplate(w, "edit-book-form", map[string]interface{}{
+		"Book":       book,
+		"Categories": categories,
+	})
+	if err != nil {
+		utils.RespondWithJSON(w, http.StatusInternalServerError, err.Error(), nil)
+	}
+}
+
+func formatPrice(price float64) string {
+	// Convert price to string with commas
+	return strconv.FormatFloat(price, 'f', 0, 64)
 }

@@ -6,7 +6,6 @@ import (
 	"golang-beginner-chap24/middleware"
 	"golang-beginner-chap24/repositories"
 	"golang-beginner-chap24/services"
-	// "net/http"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -41,6 +40,8 @@ func NewRouter() chi.Router {
 
 	r.With(middleware.AuthMiddleware).Get("/dashboard", handlers.DashboardViewHandler)
 	r.With(middleware.AuthMiddleware).Get("/add-book-form", categoryHandler.AddBookFormHandler)
+	r.With(middleware.AuthMiddleware).Get("/book-list", bookHandler.GetBooksHandler)
+	r.With(middleware.AuthMiddleware).Get("/edit-book/{id}", bookHandler.EditBookFormHandler)
 
 	return r
 }

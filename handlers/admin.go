@@ -40,10 +40,10 @@ func (ah *AdminHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
 		Value:    token,
-		HttpOnly: true,
 		Path:     "/",
+		HttpOnly: true,
 	})
-	http.Redirect(w, r, "/dashboard", http.StatusOK)
+	http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
 func (ah *AdminHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {

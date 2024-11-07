@@ -1,0 +1,47 @@
+{{define "book-list-view"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Buku</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Daftar Buku</h1>
+    </header>
+
+    <section id="book-list">
+        <table>
+            <thead>
+                <tr>
+                    <th>Kode Buku</th>
+                    <th>Nama Buku</th>
+                    <th>Jenis Buku</th>
+                    <th>Pengarang</th>
+                    <th>Jumlah</th>
+                    <th>Harga</th>
+                    <th>Diskon</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Books}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.Category.Name}}</td>
+                    <td>{{.Author}}</td>
+                    <td>{{.Quantity}}</td>
+                    <td>{{.FormattedPrice}}</td>
+                    <td>{{.Discount}}%</td>
+                    <td><a href="/edit-book/{{ .ID }}">Edit</a> | <a href="#">Hapus</a></td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </section>
+</body>
+</html>
+{{end}}

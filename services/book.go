@@ -37,3 +37,11 @@ func (bs *BookService) CreateBook(bookInput collections.Book) error {
 	}
 	return bs.BookRepo.Create(bookInput)
 }
+
+func (bs *BookService) GetAllBooks() ([]collections.Book, error) {
+	return bs.BookRepo.GetAll()
+}
+
+func (bs *BookService) GetBookByID(id string) (collections.Book, []collections.Category, error) {
+	return bs.BookRepo.GetForUpdate(id)
+}

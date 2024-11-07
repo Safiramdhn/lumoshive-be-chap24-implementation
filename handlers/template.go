@@ -18,10 +18,3 @@ func LogoutViewHandler(w http.ResponseWriter, r *http.Request) {
 func DashboardViewHandler(w http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(w, "dashboard", nil)
 }
-
-// func AddBookFormHandler(w http.ResponseWriter, r *http.Request) {
-// 	db := database.NewPostgresDB()
-// 	categoryRepo := repositories.NewCategoryRepository(db)
-// 	categoryService := services.CategoryService(*&categoryRepo)
-// 	templates.ExecuteTemplate(w, "add-book-form", nil)
-// }
