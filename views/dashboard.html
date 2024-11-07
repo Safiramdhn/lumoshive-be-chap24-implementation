@@ -1,0 +1,40 @@
+{{define "dashboard"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard CMS - Online Shop Book</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Dashboard CMS - Online Shop Book</h1>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/add-book-form">Tambah Buku</a>
+            <a href="/book-list">Daftar Buku</a>
+            <a href="/order-list">Data Penjualan</a>
+            <a href="/update-discount">Set Diskon</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+
+    <section id="dashboard">
+        <h2>Welcome to the Book Management Dashboard</h2>
+        <div class="card">
+            <h3>Total Buku</h3>
+            <p>100</p>
+        </div>
+        <div class="card">
+            <h3>Total Penjualan</h3>
+            <p>200</p>
+        </div>
+        <div class="card">
+            <h3>Rating Tertinggi</h3>
+            <p>4.9 / 5</p>
+        </div>
+    </section>
+</body>
+</html>
+{{end}}
