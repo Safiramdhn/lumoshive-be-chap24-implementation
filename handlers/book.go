@@ -116,7 +116,6 @@ func (h *BookHandler) EditBookFormHandler(w http.ResponseWriter, r *http.Request
 		utils.RespondWithJSON(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
-	fmt.Printf("Book: %+v, Categories: %+v", book, categories)
 
 	// Ensure the book has a valid Category field and pass the data to the template
 	err = templates.ExecuteTemplate(w, "edit-book-form", map[string]interface{}{

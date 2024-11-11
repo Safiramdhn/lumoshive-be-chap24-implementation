@@ -11,6 +11,8 @@ func main() {
 
 	fs := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+	fu := http.FileServer(http.Dir("./uploads"))
+	r.Handle("/uploads/*", http.StripPrefix("/uploads/", fu))
 
 	log.Println("Server started on port 8080")
 	if err := http.ListenAndServe(":8080", r); err != nil {

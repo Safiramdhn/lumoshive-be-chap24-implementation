@@ -6,6 +6,7 @@ import (
 	"golang-beginner-chap24/middleware"
 	"golang-beginner-chap24/repositories"
 	"golang-beginner-chap24/services"
+	"golang-beginner-chap24/wire"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -13,6 +14,8 @@ import (
 func NewRouter() chi.Router {
 	db := database.NewPostgresDB()
 	r := chi.NewRouter()
+	orderHandler := wire.InitializeOrderHandler()
+	paymentMethodHandler := wire.InitializePaymentMethodHandler()
 
 	adminRepo := repositories.NewAdminRepository(db)
 	adminService := services.NewAdminService(*adminRepo)
@@ -26,12 +29,29 @@ func NewRouter() chi.Router {
 	bookService := services.NewBookService(*bookRepo)
 	bookHandler := handlers.NewBookHandler(*bookService)
 
+	// orderRepo := repositories.NewOrderRepository(db)
+	// orderService := services.NewOrderService(*orderRepo)
+	// orderHandler := handlers.NewOrderHandler(*orderService)
+
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/login", adminHandler.LoginHandler)
 		r.With(middleware.AuthMiddleware).Post("/logout", adminHandler.LogoutHandler)
 
 		r.Route("/book", func(r chi.Router) {
 			r.With(middleware.AuthMiddleware).Post("/add-book", bookHandler.CreateBookHandler)
+		})
+
+		r.Route("/order", func(r chi.Router) {
+			r.Post("/create", orderHandler.CreateOrderHandler)
+		})
+
+		r.Route("/payment-methods", func(r chi.Router) {
+			r.Post("/", paymentMethodHandler.CreatePaymentMethodHandler)
+			r.Get("/", paymentMethodHandler.GetAllPaymentMethodsHandler)
+			r.Get("/{id}", paymentMethodHandler.GetPaymentMethodByIdHandler)
+			r.Put("/{id}", paymentMethodHandler.UpdatePaymentMethodHandler)
+			r.Delete("/{id}", paymentMethodHandler.DeletePaymentMethodHandler)
+
 		})
 	})
 
