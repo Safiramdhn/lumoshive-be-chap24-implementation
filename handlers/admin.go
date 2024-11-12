@@ -43,7 +43,7 @@ func (ah *AdminHandler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 	})
-	http.Redirect(w, r, "/dashboard", http.StatusFound)
+	// http.Redirect(w, r, "/dashboard", http.StatusFound)
 }
 
 func (ah *AdminHandler) LogoutHandler(w http.ResponseWriter, r *http.Request) {

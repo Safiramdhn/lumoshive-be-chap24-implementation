@@ -10,17 +10,20 @@ import (
 	"github.com/google/wire"
 	"golang-beginner-chap24/database"
 	"golang-beginner-chap24/handlers"
+	"golang-beginner-chap24/middleware"
 	"golang-beginner-chap24/repositories"
 	"golang-beginner-chap24/services"
+	"golang-beginner-chap24/utils"
 )
 
 // Injectors from wire.go:
 
 func InitializeOrderHandler() *handlers.OrderHandler {
 	db := database.NewPostgresDB()
-	orderRepository := repositories.NewOrderRepository(db)
+	logger := utils.IntiLogger()
+	orderRepository := repositories.NewOrderRepository(db, logger)
 	orderService := services.NewOrderService(orderRepository)
-	orderHandler := handlers.NewOrderHandler(orderService)
+	orderHandler := handlers.NewOrderHandler(orderService, logger)
 	return orderHandler
 }
 
@@ -32,8 +35,27 @@ func InitializePaymentMethodHandler() *handlers.PaymentMethodHandler {
 	return paymentMethodHandler
 }
 
+func IniitalMiddleware() *middleware.Middleware {
+	logger := utils.IntiLogger()
+	middlewareMiddleware := middleware.NewMiddleware(logger)
+	return middlewareMiddleware
+}
+
+func InitializeOrderItemHandler() *handlers.OrderItemHandler {
+	db := database.NewPostgresDB()
+	logger := utils.IntiLogger()
+	orderItemRepository := repositories.NewOrderItemRepo(db, logger)
+	orderItemService := services.NewOrderItemService(orderItemRepository)
+	orderItemHandler := handlers.NewOrderItemHandler(orderItemService, logger)
+	return orderItemHandler
+}
+
 // wire.go:
 
-var orderHandlerSet = wire.NewSet(database.NewPostgresDB, repositories.NewOrderRepository, services.NewOrderService, handlers.NewOrderHandler)
+var orderHandlerSet = wire.NewSet(database.NewPostgresDB, utils.IntiLogger, repositories.NewOrderRepository, services.NewOrderService, handlers.NewOrderHandler)
 
 var paymentMethods = wire.NewSet(database.NewPostgresDB, repositories.NewPaymentMethodRepository, services.NewPaymentMethodService, handlers.NewPaymentMethodHandler)
+
+var middlewareSet = wire.NewSet(utils.IntiLogger, middleware.NewMiddleware)
+
+var orderItemSet = wire.NewSet(database.NewPostgresDB, utils.IntiLogger, repositories.NewOrderItemRepo, services.NewOrderItemService, handlers.NewOrderItemHandler)

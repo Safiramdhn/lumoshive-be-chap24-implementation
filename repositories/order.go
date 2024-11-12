@@ -4,14 +4,17 @@ import (
 	"database/sql"
 	"golang-beginner-chap24/collections"
 	"log"
+
+	"go.uber.org/zap"
 )
 
 type OrderRepository struct {
-	DB *sql.DB
+	DB  *sql.DB
+	Log *zap.Logger
 }
 
-func NewOrderRepository(db *sql.DB) *OrderRepository {
-	return &OrderRepository{DB: db}
+func NewOrderRepository(db *sql.DB, log *zap.Logger) *OrderRepository {
+	return &OrderRepository{DB: db, Log: log}
 }
 
 // helper function to handle errors with logging and transaction rollback
@@ -37,6 +40,7 @@ func (r *OrderRepository) Create(orderInput collections.Order) error {
 
 	// Insert customer
 	customerStatement := `INSERT INTO customers (customer_name, customer_phone) VALUES ($1, $2) RETURNING id`
+	r.Log.Info("Insert customer", zap.String("repository", "OrderRepository"), zap.String("query", customerStatement))
 	err = tx.QueryRow(customerStatement, orderInput.CustomerName, orderInput.CustomerPhone).Scan(&orderInput.CustomerID)
 	if err = handleError(tx, err, "Error inserting customer"); err != nil {
 		return err
@@ -44,6 +48,7 @@ func (r *OrderRepository) Create(orderInput collections.Order) error {
 
 	// Insert address
 	addressStatement := `INSERT INTO addresses (customer_id, street, city, postal_code, country) VALUES ($1, $2, $3, $4, $5) RETURNING address_id`
+	r.Log.Info("Insert address", zap.String("repository", "OrderRepository"), zap.String("query", addressStatement))
 	err = tx.QueryRow(addressStatement, orderInput.CustomerID, orderInput.ShippingAddress.Street, orderInput.ShippingAddress.City, orderInput.ShippingAddress.PostalCode, orderInput.ShippingAddress.Country).Scan(&orderInput.ShippingAddress.ID)
 	if err = handleError(tx, err, "Error creating address"); err != nil {
 		return err
@@ -51,6 +56,7 @@ func (r *OrderRepository) Create(orderInput collections.Order) error {
 
 	// Insert order
 	orderStatement := `INSERT INTO orders (customer_id, payment_method, shipping_address_id) VALUES ($1, $2, $3) RETURNING id`
+	r.Log.Info("Insert order", zap.String("repository", "OrderRepository"), zap.String("query", orderStatement))
 	err = tx.QueryRow(orderStatement, orderInput.CustomerID, orderInput.PaymentMethod, orderInput.ShippingAddress.ID).Scan(&orderInput.ID)
 	if err = handleError(tx, err, "Error inserting order"); err != nil {
 		return err
@@ -78,6 +84,7 @@ func (r *OrderRepository) Create(orderInput collections.Order) error {
 
 		// Insert order item
 		orderItemStatement := `INSERT INTO order_items (order_id, book_id, quantity, subtotal) VALUES ($1, $2, $3, $4)`
+		r.Log.Info("Insert order items", zap.String("repository", "OrderRepository"), zap.String("query", orderItemStatement))
 		_, err = tx.Exec(orderItemStatement, orderInput.ID, book.BookID, book.Quantity, orderInput.OrderItems[i].Subtotal)
 		if err = handleError(tx, err, "Error inserting order item"); err != nil {
 			return err
@@ -90,6 +97,7 @@ func (r *OrderRepository) Create(orderInput collections.Order) error {
 
 	// Update order with total and final amount
 	updateOrderStatement := `UPDATE orders SET total_amount = $1, final_amount = $2 WHERE id = $3`
+	r.Log.Info("Update order", zap.String("repository", "OrderRepository"), zap.String("query", updateOrderStatement))
 	_, err = tx.Exec(updateOrderStatement, orderInput.TotalAmount, orderInput.FinalAmount, orderInput.ID)
 	if err = handleError(tx, err, "Error updating order totals"); err != nil {
 		return err
@@ -97,6 +105,7 @@ func (r *OrderRepository) Create(orderInput collections.Order) error {
 
 	// Commit the transaction
 	if err := tx.Commit(); err != nil {
+		r.Log.Error("Failed to commit transaction"+err.Error(), zap.String("repository", "OrderRepository"))
 		log.Printf("Failed to commit transaction: %v\n", err)
 		return err
 	}

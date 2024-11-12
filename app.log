@@ -1,0 +1,2 @@
+{"L":"INFO","T":"2024-11-12T20:50:00.945+0800","M":"Get rating count","repository":"order_items","query":"SELECT COUNT(*) FROM order_items"}
+{"L":"INFO","T":"2024-11-12T20:50:00.959+0800","M":"Get rating","repository":"order_items","query":"SELECT rating FROM order_items ORDER BY order_item_id DESC LIMIT $1"}
